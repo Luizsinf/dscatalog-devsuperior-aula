@@ -1,16 +1,19 @@
 package com.desvsuperior.dscatalog.dscatalog.Service;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
 
 import javax.persistence.EntityExistsException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
+import com.desvsuperior.dscatalog.dscatalog.Service.exceptions.DatabaseException;
 import com.desvsuperior.dscatalog.dscatalog.Service.exceptions.ResourceNotFoundException;
 import com.desvsuperior.dscatalog.dscatalog.dto.CategoryDTO;
 import com.desvsuperior.dscatalog.dscatalog.entities.Category;
@@ -23,13 +26,9 @@ public class CategoryService {
 	private CategoryRepository repository;
 	
 	@Transactional(readOnly =true)
-	public List<CategoryDTO>findAll(){
-		List<Category>list = repository.findAll();
-		List<CategoryDTO>listDto = list.stream().map(x -> new CategoryDTO(x)).collect(Collectors.toList());
-		
-		
-		return listDto;
-		
+		public Page<CategoryDTO> findAllPaged(PageRequest pageRequest){
+			Page<Category> list = repository.findAll(pageRequest);
+			return  list.map(X ->  new CategoryDTO(X));
 	}
 
 	
@@ -55,6 +54,7 @@ public class CategoryService {
 	public CategoryDTO update(Long id, CategoryDTO dto) {
 		
 		try {
+		@SuppressWarnings("deprecation")
 		Category entity = repository.getOne(id);
 		entity.setName(dto.getName());
 		entity = repository.save(entity);
@@ -66,4 +66,20 @@ public class CategoryService {
 		}
 	
        }
+
+
+	public void delete(Long id) {
+		try {
+			repository.deleteById(id);
+		}
+		catch(EmptyResultDataAccessException e) {
+			throw new ResourceNotFoundException("Id not found"+id);
+
+		}
+		
+		catch(DataIntegrityViolationException e) {
+			throw new DatabaseException("Integrity viodation");
+		
 	}
+	}
+}
