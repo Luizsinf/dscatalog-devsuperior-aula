@@ -58,6 +58,11 @@ public class Product implements Serializable {
 	}
 
 
+	public Product() {
+		// TODO Auto-generated constructor stub
+	}
+
+
 	public Long getId() {
 		return id;
 	}
@@ -98,12 +103,12 @@ public class Product implements Serializable {
 	}
 
 
-	public String getImgUrl() {
+	public String  getimg_url() {
 		return img_url;
 	}
 
 
-	public void setImgUrl(String img_url) {
+	public void setimg_url(String img_url) {
 		this.img_url = img_url;
 	}
 
